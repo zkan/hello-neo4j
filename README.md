@@ -1,5 +1,7 @@
 # Hello, Neo4j
 
+## CREATE
+
 Create a new node
 
 ```python
@@ -24,11 +26,21 @@ CREATE (:Person {name: "Kan Ouivirach"})
 CREATE (:Person {name: "Hello World"})
 ```
 
-Node with 2 labels
+```python
+CREATE (:User {name: "Newy", address: "Here 1234"})
+```
+
+```python
+CREATE (x:Book {title: "The White Tiger"}) RETURN x
+```
+
+Create a node with 2 labels
 
 ```python
 CREATE (n:Person:Indian)
 ```
+
+## MATCH
 
 View and search the nodes
 
@@ -64,6 +76,8 @@ MATCH (n) WHERE n:Person:Indian RETURN n
 MATCH (n) WHERE n:Person OR n:Indian RETURN n
 ```
 
+Create a relationship between nodes
+
 ```python
 MATCH (n:Person), (m:Person)
 CREATE (n)-[:SOME_RELATIONSHIP]->(m)
@@ -74,14 +88,6 @@ MATCH (n:Person {name: "Hello World"}), (m:Person {name: "Kan Ouivirach"})
 CREATE (n)-[:SOME_RELATIONSHIP]->(m)
 ```
 
-Flow การซื้อขายของจากระบบๆ หนึ่ง
-
-```python
-CREATE (:User {name: "Newy", address: "Here 1234"})
-```
-
-เซิชหา Product โดยชื่อ
-
 ```python
 MATCH (n:Product)
 WHERE n.name CONTAINS "แก้ว"
@@ -89,69 +95,57 @@ RETURN n
 LIMIT 4
 ```
 
-ถ้าอยากจะดูของในหมวด Category นั้นๆ
-
 ```python
 MATCH (:Product)->[:IS_CAT]->(c:Category {name: "เสื้อผ้า"})
 RETURN p
 ```
-
-ด้านบนเราจะได้ Node ที่ชื่อว่า "เสื้อผ้า" แต่จริงๆ เราอยากได้ Node ที่เชื่อมต่อกับ Node นี้ทั้งหมด
 
 ```python
 MATCH (d:Category)-[:SUBCAT]->(c:Category {name: "เสื้อผ้า"})
 RETURN d
 ```
 
-ด้านบนจะได้ลูกของ "เสื้อผ้า" โดยตรง
-
 ```python
 MATCH (d:Category)-[:SUBCAT*0..2]->(c:Category {name: "เสื้อผ้า"})
 RETURN d
 ```
-
-ด้านบนจะได้ที่เชื่อมโยงกับเสื้อผ้ามา 2 ชั้น หรือเราจะกำหนดกี่ชั้นก็ได้ตามนี้
 
 ```python
 MATCH (d:Category)-[:SUBCAT*0..]->(c:Category {name: "เสื้อผ้า"})
 RETURN d
 ```
 
-ทีนี้ถ้าเราอยากได้ Product
-
 ```python
 MATCH (p:Product)-[:IS_CAT]->(d:Category)-[:SUBCAT*0..]->(c:Category {name: "เสื้อผ้า"})
 RETURN p
 ```
 
-ถ้าเราอยากเห็น Category ด้วย ก็เพิ่ม d ใน RETURN
+We can return more than one:
 
 ```python
 MATCH (p:Product)-[:IS_CAT]->(d:Category)-[:SUBCAT*0..]->(c:Category {name: "เสื้อผ้า"})
 RETURN d, p
 ```
 
-Delete a relationship
+Search
 
 ```python
-MATCH ()-[r:SOME_RELATIONSHIP]->(n) DELETE r
+MATCH (n:Book) WHERE n.price < 1000 RETURN n
 ```
 
-Delete a node
+Show the labels
 
 ```python
-MATCH (n) WHERE id(n) = 1 DELETE n
+MATCH (n) RETURN DISTINCT labels(n)
 ```
+
+Show the number of nodes in each label
 
 ```python
-MATCH (n) WHERE id(n) IN [1, 2] DELETE n
+MATCH (n) RETURN DISTINCT count(labels(n)), labels(n)
 ```
 
-Delete all nodes
-
-```python
-MATCH (n) DELETE n
-```
+## SET
 
 Set label to node
 
@@ -163,6 +157,14 @@ MATCH (n) SET n:Employeee RETURN n
 MATCH (n) WHERE id(n) = 0 SET n:Manager RETURN n
 ```
 
+Update property
+
+```python
+MATCH (n) WHERE n.title = "Last man" SET n.title = "Last Man", n.price = 99 RETURN n
+```
+
+## REMOVE
+
 Remove label
 
 ```python
@@ -173,38 +175,32 @@ MATCH (n) REMOVE n:Person RETURN n
 MATCH (n) WHERE id(n) = 2 REMOVE n:Employee RETURN n
 ```
 
-ดูว่ามี labels อะไรบ้าง
-
-```python
-MATCH (n) RETURN DISTINCT labels(n)
-```
-
-ดูว่าแต่ละ labels มีจำนวนเท่าไหร่
-
-```python
-MATCH (n) RETURN DISTINCT count(labels(n)), labels(n)
-```
-
 ลบโหนดจาก labels
 
 ```python
 MATCH (n) WHERE n:TeamLeader DELETE n
 ```
 
-สร้างโหนดกับ properties
+## DELETE
+
+Delete a node
 
 ```python
-CREATE (x:Book {title: "The White Tiger"}) RETURN x
+MATCH (n) WHERE id(n) = 1 DELETE n
 ```
 
-Search
+Delete a relationship
 
 ```python
-MATCH (n:Book) WHERE n.price < 1000 RETURN n
+MATCH ()-[r:SOME_RELATIONSHIP]->(n) DELETE r
 ```
 
-Update property
+```python
+MATCH (n) WHERE id(n) IN [1, 2] DELETE n
+```
+
+Delete all nodes
 
 ```python
-MATCH (n) WHERE n.title = "Last man" SET n.title = "Last Man", n.price = 99 RETURN n
+MATCH (n) DELETE n
 ```
